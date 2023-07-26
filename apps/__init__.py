@@ -9,11 +9,31 @@ from config import config
 basedir = os.path.abspath(os.path.dirname(__file__))
 db = SQLAlchemy()
 
-log_dir = os.path.join(basedir, '..', 'logs')
-if not os.path.exists(log_dir):
-    os.makedirs(log_dir, exist_ok=True)
-# 创建日期日志文件
-log_path = os.path.join(log_dir, f'{datetime.now().strftime("%Y-%m-%d")}.log')
+
+def init_logger():
+    log_dir = os.path.join(basedir, '..', 'logs')
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir, exist_ok=True)
+    # 创建日期日志文件
+    log_path = os.path.join(log_dir, f'{datetime.now().strftime("%Y-%m-%d")}.log')
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    handler = logging.FileHandler(log_path, encoding='UTF-8')
+    handler.setFormatter(logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s'))
+    # 日志同时在控制台输出
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    console.setFormatter(formatter)
+    logger.addHandler(console)
+    # 日志同时保存到文件
+    logger.addHandler(handler)
+    return logger
+
+
+logger = init_logger()
+
 
 def create_app(config_name):
     configer = config[config_name]
@@ -25,11 +45,10 @@ def create_app(config_name):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = configer.SQLALCHEMY_TRACK_MODIFICATIONS
     db.init_app(app)
 
-    # 配置日志
-    app.logger.setLevel(logging.DEBUG)
-    handler = logging.FileHandler(log_path, encoding='UTF-8')
-    handler.setFormatter(logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s'))
-    app.logger.addHandler(handler)
+    logger.info(f"configer: {configer}")
+
+    # 日志
+    app.logger = logger
 
     # 注册蓝图
     # from apps.app1 import app1_bp
