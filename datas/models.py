@@ -16,6 +16,6 @@ class User(db.Model):
             "id": self.id,
             "username": self.username,
             "password": self.password,
-            "create_time": self.create_time.strftime("%Y-%m-%d %H:%M:%S")
+            # "create_time": self.create_time.strftime("%Y-%m-%d %H:%M:%S")
         }
 

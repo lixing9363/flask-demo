@@ -5,3 +5,5 @@ Jinja2==3.0.3
 SQLAlchemy==1.4.29
 Werkzeug==2.0.2
 psycopg2==2.9.6
+gevent==24.2.1
+flask_migrate==4.0.7
